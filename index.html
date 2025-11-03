@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>祝福</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background-image: url("R:\hello.gif");
+            background-color: #f98ebb85;
+            font-family: "SongTi", "宋体", serif;
+            display:flex;
+            flex-direction: column; /* 让标题和按钮组垂直排列（保持原有上下顺序） */
+            justify-content: center; /* 垂直方向居中（核心） */
+            align-items: center; /* 水平方向居中（核心） */
+            text-align: center; /* 文字内部居中（避免多行文字偏移） */
+            padding: 50px 20px;
+            min-height: 100vh; /* 让 body 占满整个屏幕高度（否则居中无效） */
+            margin: 0; /* 清除浏览器默认边距，避免居中偏移 */
+            background-position: center;
+            background-attachment: fixed;
+        }
+        .content-box {
+            border: 2px solid #f5f4f2;
+            border-radius: 15px;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.1);
+            margin: 20px 0;
+        }
+        
+        h1 {
+            color: #000000;
+            padding: 12px;
+            font-size: 28px;
+            margin-bottom: 30px;
+        }
+        
+        .button-container {
+            
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 50px;
+        }
+        
+        button {
+            background-color: #fe9fc2de;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-size: 18px;
+            padding: 10px 25px;
+            cursor: pointer;
+            transition: transform 0.3s, opacity 0.3s;
+            font-family: "SongTi", "宋体", serif;
+        }
+        
+        button:hover {
+            transform: scale(1.05);
+            opacity: 0.9;
+        }
+        
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            opacity: 1;
+        }
+        
+        .popup {
+            position: fixed;
+            width: 220px;
+            height: 80px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            display: flex;
+            flex-direction: column;
+            animation: pop 0.3s ease-out forwards;
+            overflow: hidden;
+            padding: 10px 8px 8px; /* 上内边距30px（放图片），左右15px，下15px */
+             /* 让内部图片绝对定位相对于弹窗 */
+        }
+        
+        .popup-header{
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 10px;
+            margin-bottom: 2px;
+        }
+    
+        .popup-img {
+            margin-top: 9px;
+            margin-left: 2px;
+            width: 45px;  
+            height: 40px;
+            background-size: cover; /* 改为 cover 确保图片填满容器 */
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+
+        @keyframes pop {
+            from {
+                transform: scale(0);
+            }
+            to {
+                transform: scale(1);
+            }
+        }
+        
+        .popup-content {
+            flex: 1;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-size: 16px;
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            color: #333;
+            font-size: 20px;
+            cursor: pointer;
+            width: 25px;
+            height: 25px;
+            display: flex;
+            margin-left: auto;
+        }
+        
+        .close-btn:hover {
+            transform: none;
+            opacity: 0.7;
+            color: #000;
+        }
+    </style>
+</head>
+<body>
+    <div class="content-box">
+        <h1>点击开始接收祝福吧！</h1>
+        <div class="button-container">
+            <button id="startBtn">开启祝福</button>
+            <button id="closeAllBtn">关闭所有</button>
+        </div>
+    </div>
+    <script>
+        // 祝福内容列表
+        const poemBlessings = [
+            "好运常伴左右",
+            "日日喜乐无忧",
+            "岁岁平安康泰",
+            "暴富暴美暴甜",
+            "万事皆如所愿",
+            "笑口常开常乐",
+            "健康岁岁年年",
+            "福气满满当当",
+            "前程闪闪发光",
+            "温柔以待世间",
+            "好运接踵而至",
+            "开心永不打烊",
+            "美梦皆能成真",
+            "生活甜如蜜糖",
+            "喜乐岁岁常安"
+        ];
+        
+        const specialBlessing = "很高兴遇见你";
+        
+        // 背景颜色列表
+        const bgColors = [
+            "#FFFACD", "#FFF0F5", "#E0FFFF", "#E6E6FA", "#FAFAD2", 
+            "#FFE4E1", "#FDF5E6", "#AFEEEE"
+        ];
+        
+        const startBtn = document.getElementById('startBtn');
+        const closeAllBtn = document.getElementById('closeAllBtn');
+        let specialBlessingShown = false;
+        
+        // 开启祝福按钮点击事件
+        startBtn.addEventListener('click', () => {
+            // 禁用按钮
+            startBtn.disabled = true;
+            
+            // 5秒后恢复按钮可用
+            setTimeout(() => {
+                startBtn.disabled = false;
+            }, 5000);
+            
+            // 生成100个弹窗，间隔50ms
+            for (let i = 0; i < 100; i++) {
+                setTimeout(() => {
+                    createPopup();
+                }, i * 50);
+            }
+        });
+        
+        // 关闭所有按钮点击事件
+        closeAllBtn.addEventListener('click', () => {
+            // 清除所有弹窗
+            const popups = document.querySelectorAll('.popup');
+            popups.forEach(popup => popup.remove());
+            
+            // 重置特殊祝福状态
+            specialBlessingShown = false;
+            
+            // 恢复开启祝福按钮可用
+            startBtn.disabled = false;
+        });
+        
+        // 创建弹窗函数
+        function createPopup() {
+            // 创建弹窗元素
+            const popup = document.createElement('div');
+            popup.className = 'popup';
+
+
+            
+            // 随机选择背景色
+            const randomColor = bgColors[Math.floor(Math.random() * bgColors.length)];
+            popup.style.backgroundColor = randomColor;
+            
+            // 确定弹窗内容（10%概率出现特殊祝福）
+            let blessingText;
+            if (!specialBlessingShown && Math.random() < 0.1) {
+                blessingText = specialBlessing;
+                specialBlessingShown = true;
+            } else {
+                // 从普通祝福中随机选择
+                blessingText = poemBlessings[Math.floor(Math.random() * poemBlessings.length)];
+            }
+            
+            // 设置弹窗内容和关闭按钮
+            popup.innerHTML = `
+                <div class="popup-header">
+                    <div class="popup-img" style="background-image: url('./hello1.gif')"></div>
+                    <button class="close-btn">×</button>
+                </div>
+                <div class="popup-content">
+                    ${blessingText}
+                </div>    
+                
+            `;
+            
+            // 计算随机位置（确保弹窗不超出屏幕）
+            const maxLeft = window.innerWidth - 220; // 220是弹窗宽度
+            const maxTop = window.innerHeight - 80; // 100是弹窗高度
+            const left = Math.floor(Math.random() * maxLeft);
+            const top = Math.floor(Math.random() * maxTop);
+            
+            popup.style.left = `${left}px`;
+            popup.style.top = `${top}px`;
+            
+            // 添加到页面
+            document.body.appendChild(popup);
+            
+            // 单个弹窗关闭按钮事件
+            const closeBtn = popup.querySelector('.close-btn');
+            closeBtn.addEventListener('click', () => {
+                popup.remove();
+            });
+        
+        }
+    </script>
+</body>
+</html>
